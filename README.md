@@ -1,4 +1,4 @@
-# fa-signal-provider-lib
+# fa-signal-provider
 A model library for all signal providers of Freya Alpha using python. It includes models to handle signal ingestion, signal status reports, profit and performance reports, etc.
 
 ## Sponsors
