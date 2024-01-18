@@ -24,7 +24,7 @@ class TradingSignal(BaseModel):
     )
     provider_trade_id: str = Field(
         ...,
-        description="FA Models describes a Trade as a buy and a sell (not soley a buy or a sell). Every trade is expected to consist of at least one buy order and at least one sell order. Thus, the provider_trade_id is mandatory if a provider wants to scale in and out on a fund-position. This will create a multi-position-trade. E.g. one can send one long signal with a provider_trade_id 77 and another long signal a few hours later also with the provider_trade_id 77. Provided that the position_size_in_percentage is less than 100 on the first one. All updates provided by the system will hold the trade id.",
+        description="We describes a Trade as a buy and a sell (not soley a buy or a sell). Every trade is expected to consist of at least one buy order and at least one sell order. Thus, the provider_trade_id is mandatory if a provider wants to scale in and out on a fund-position. This will create a multi-position-trade. E.g. one can send one long signal with a provider_trade_id 77 and another long signal a few hours later also with the provider_trade_id 77. Provided that the position_size_in_percentage is less than 100 on the first one. All updates provided by the system will hold the trade id.",
     )
     is_hot_signal: bool = Field(
         default=True,
@@ -57,7 +57,6 @@ class TradingSignal(BaseModel):
         "provider_id",
         "strategy_id",
         "provider_signal_id",
-        "provider_trade_id",
         "market",
         "exchange",
     )
