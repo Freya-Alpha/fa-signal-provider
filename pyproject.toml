@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "fa-signal-provider"
-version = "1.0.0"
+version = "1.1.9"
 description = "A model library for all signal providers of Freya Alpha using python. It includes models to handle signal ingestion, signal status reports, profit & performance reports, etc."
 readme = "README.md"
 authors = [{ name = "Brayan Svan", email = "hello@freya-alpha.com" }]
@@ -29,7 +29,7 @@ dev = ["black", "bumpver", "isort", "pip-tools", "pytest"]
 Homepage = "https://github.com/svabra/fa-signal-provider"
 
 [tool.bumpver]
-current_version = "1.1.8"
+current_version = "1.1.9"
 version_pattern = "MAJOR.MINOR.PATCH"
 commit_message = "bump version {old_version} -> {new_version}"
 commit = true
