@@ -1,0 +1,6 @@
+pydantic
+pydantic[email]
+wheel
+setuptools
+twine
+pytest
