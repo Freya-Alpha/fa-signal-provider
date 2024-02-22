@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field, field_validator
-from typing import Optional
+#from typing import Optional
 from datetime import datetime
 from fasignalprovider.direction import Direction
 from fasignalprovider.side import Side
@@ -12,45 +12,58 @@ class TradingSignal(BaseModel):
     """
 
     provider_id: str = Field(
-        ..., description="Your ID as a provider, who emitted the signal."
+        ..., description="Mandatory. Your ID as a provider, who emitted the signal."
     )
     strategy_id: str = Field(
         ...,
-        description="Provide the id of the strategy (you might have more than one algorithm), which is sending a signal.",
+        description="Mandatory. Provide the id of the strategy (you might have more than one algorithm), which is sending a signal.",
     )
-    provider_signal_id: Optional[str] = Field(
-        None,
-        description="You can use this correlation id as your own 'signal id' of your internal system. Do NOT mistaken this correlation id with the trade correlation id.",
+    provider_signal_id: str = Field(
+        ...,
+        description="Mandatory. Provide us with a your signal id. This correlation id is your own 'signal id' \
+            of your internal system. Your and our party will use it to inspect process errors. \
+            Do NOT mistaken this correlation id with the trade correlation id.",
     )
     provider_trade_id: str = Field(
         ...,
-        description="We describes a Trade as a buy and a sell (not soley a buy or a sell). Every trade is expected to consist of at least one buy order and at least one sell order. Thus, the provider_trade_id is mandatory if a provider wants to scale in and out on a fund-position. This will create a multi-position-trade. E.g. one can send one long signal with a provider_trade_id 77 and another long signal a few hours later also with the provider_trade_id 77. Provided that the position_size_in_percentage is less than 100 on the first one. All updates provided by the system will hold the trade id.",
+        description="Mandatory. We describes a Trade as a buy and a sell (not soley a buy OR a sell). \
+            Every trade is expected to consist of at least one buy signal (provider_signal_id) and at \
+            least one sell signal (provider_signal_id).\
+            Thus, the provider_trade_id is mandatory. This will allow to create a multi-position-trade. \
+            E.g. one can send one long signal  with a provider_trade_id 77 and another long signal a \
+            few hours later also with the provider_trade_id 77. Provided that the \
+            position_size_in_percentage is less than 100 on the first one. All updates provided by the \
+            system will hold the trade id.",
     )
     is_hot_signal: bool = Field(
         default=True,
-        description="By default, every signal is marked as a cold signal. Thus, set to 0. That is a paper-trading signal and will only be processed for forward-performance testing. Hot signals are suggested to be processed by the order engines - provided all other requirements for hot trading are fulfilled. Set 1 (not true) to this value to suggest a hot trade.",
+        description="Mandatory. By DEFAULT, every signal is marked as a COLD SIGNAL. Thus, set to 0. \
+            That is a paper-trading signal and will only be processed for forward-performance \
+            testing. Hot signals are suggested to be processed by the order engines - \
+            provided all other requirements for hot trading are fulfilled. Set true \
+            to this value to suggest a hot trade.",
     )
-    market: str = Field(..., description="The market you want to trade. e.g. BTC/USDT")
-    exchange: str = Field(
+    market: str = Field(..., description="Mandatory. The market you want to trade. e.g. BTC/USDT")
+    source_of_data: str = Field(
         ...,
-        description="The exchange you pulled your data from - or - wish to trade on.",
+        description="Mandatory. The soruce your based your decision on. E.g. Binance, CoinMarketCap, Chainlink, etc.",
     )
-    direction: Direction = Field(..., description="Simply LONG or SHORT.")
+    direction: Direction = Field(..., description="Mandatory. Simply LONG or SHORT.")
     side: Side = Field(
-        ..., description="Simply BUY (open trade) or SELL (close trade)."
+        ..., description="Mandatory. Simply BUY (open trade) or SELL (close trade)."
     )
     price: float = Field(
-        ..., description="The price to buy use for the limit-order or limit-stop-order"
+        ..., description="Mandatory. The price to buy or sell. Use for the limit-order or limit-stop-order"
     )
-    tp: float = Field(..., description="Take-profit in absolute price.")
-    sl: float = Field(..., description="Stop-loss in absolute price.")
+    tp: float = Field(..., description="Mandatory. Take-profit in absolute price.")
+    sl: float = Field(..., description="Mandatory. Stop-loss in absolute price.")
     position_size_in_percentage: float = Field(
         default=100,
         description="Caution, if one chooses another value than 100, the system will create a multi-position-trade (for scaling-in and scaling-out on a trade). In addition, one has to provide a provider_trade_id in order for the system to create a multi-position-trade. Any consecutive trades (scale-in/out), need to have provide the same provider_trade_id. Percentage of the trade position this algortihm is allowed to trade. Default is 100%, which is 1 position of your fund's positions. Another number than 100, will assume this trade has multiple positions. If a signal provider has one partial position open and then closes it, it will also regard the trade as fully closed.",
     )
     date_of_creation: datetime = Field(
         default_factory=datetime.now,
-        description="The UTC datetime when the signal was created by the signal supplier.",
+        description="Mandatory. The UTC datetime when the signal was created in the signal provider's system.",
     )
 
     @field_validator(

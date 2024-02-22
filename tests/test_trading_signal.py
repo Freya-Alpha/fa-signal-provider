@@ -9,6 +9,7 @@ def test_valid_trading_signal():
     signal = TradingSignal(
         provider_id="provider123",
         strategy_id="strategy456",
+        provider_signal_id="signal_id",
         provider_trade_id="trade789",
         market="BTC/USDT",
         exchange="Binance",
