@@ -18,12 +18,6 @@ class TradingSignal(BaseModel):
         ...,
         description="Mandatory. Provide the id of the strategy (you might have more than one algorithm), which is sending a signal.",
     )
-    provider_signal_id: str = Field(
-        ...,
-        description="Mandatory. Provide us with a your signal id. This correlation id is your own 'signal id' \
-            of your internal system. Your and our party will use it to inspect process errors. \
-            Do NOT mistaken this correlation id with the trade correlation id.",
-    )
     provider_trade_id: str = Field(
         ...,
         description="Mandatory. We describes a Trade as a buy and a sell (not soley a buy OR a sell). \
@@ -35,6 +29,12 @@ class TradingSignal(BaseModel):
             position_size_in_percentage is less than 100 on the first one. All updates provided by the \
             system will hold the trade id.",
     )
+    provider_signal_id: str = Field(
+        ...,
+        description="Mandatory. Provide us with a your signal id. This correlation id is your own 'signal id' \
+            of your internal system. Your and our party will use it to inspect process errors. \
+            Do NOT mistaken this correlation id with the trade correlation id.",
+    )    
     is_hot_signal: bool = Field(
         default=True,
         description="Mandatory. By DEFAULT, every signal is marked as a COLD SIGNAL. Thus, set to 0. \
@@ -44,9 +44,10 @@ class TradingSignal(BaseModel):
             to this value to suggest a hot trade.",
     )
     market: str = Field(..., description="Mandatory. The market you want to trade. e.g. BTC/USDT")
-    source_of_data: str = Field(
+    data_source: str = Field(
         ...,
-        description="Mandatory. The soruce your based your decision on. E.g. Binance, CoinMarketCap, Chainlink, etc.",
+        description="Mandatory. The source of data you based your decision on. E.g. Binance, CoinMarketCap,\
+            Chainlink, etc. This is to safeguard investments, which base on manipulated data sources.",
     )
     direction: Direction = Field(..., description="Mandatory. Simply LONG or SHORT.")
     side: Side = Field(
@@ -70,8 +71,9 @@ class TradingSignal(BaseModel):
         "provider_id",
         "strategy_id",
         "provider_signal_id",
+        "provider_trade_id",
         "market",
-        "exchange",
+        "data_source",
     )
     def check_string_not_empty(cls, v):
         if not v or v.isspace():

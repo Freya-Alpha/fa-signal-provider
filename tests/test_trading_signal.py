@@ -2,17 +2,17 @@ import pytest
 from datetime import datetime
 from fasignalprovider.direction import Direction
 from fasignalprovider.side import Side
-from fasignalprovider.trading_signal import TradingSignal  # Replace 'your_module' with the actual name of your module
+from fasignalprovider.trading_signal import TradingSignal
 
 def test_valid_trading_signal():
     # Test with valid data
     signal = TradingSignal(
         provider_id="provider123",
         strategy_id="strategy456",
-        provider_signal_id="signal_id",
         provider_trade_id="trade789",
+        provider_signal_id="signal_id",        
         market="BTC/USDT",
-        exchange="Binance",
+        data_source="Binance",
         direction=Direction.LONG,
         side=Side.BUY,
         price=10000.0,
