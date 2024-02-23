@@ -31,10 +31,10 @@ class TradingSignal(BaseModel):
     )
     provider_signal_id: str = Field(
         ...,
-        description="Mandatory. Provide us with a your signal id. This correlation id is your own 'signal id' \
+        description="Mandatory. Provide us with your signal id. This correlation id is your own 'signal id' \
             of your internal system. Your and our party will use it to inspect process errors. \
-            Do NOT mistaken this correlation id with the trade correlation id.",
-    )    
+            Do NOT mistaken this correlation id with the trade id.",
+    )
     is_hot_signal: bool = Field(
         default=True,
         description="Mandatory. By DEFAULT, every signal is marked as a COLD SIGNAL. Thus, set to 0. \
@@ -103,3 +103,7 @@ class TradingSignal(BaseModel):
         if not isinstance(v, datetime):
             raise ValueError("date_of_creation must be a datetime object")
         return v
+    
+    # Allow a better mapping
+    # class Config:
+    #     arbitrary_types_allowed = True
