@@ -103,7 +103,3 @@ class TradingSignal(BaseModel):
         if not isinstance(v, datetime):
             raise ValueError("date_of_creation must be a datetime object")
         return v
-    
-    # Allow a better mapping
-    # class Config:
-    #     arbitrary_types_allowed = True
