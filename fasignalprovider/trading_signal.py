@@ -36,12 +36,12 @@ class TradingSignal(BaseModel):
             Do NOT mistaken this correlation id with the trade id.",
     )
     is_hot_signal: bool = Field(
-        default=True,
-        description="Mandatory. By DEFAULT, every signal is marked as a COLD SIGNAL. Thus, set to 0. \
+        default=False,
+        description="Mandatory. By DEFAULT, every signal is marked as a COLD SIGNAL.  \
             That is a paper-trading signal and will only be processed for forward-performance \
             testing. Hot signals are suggested to be processed by the order engines - \
-            provided all other requirements for hot trading are fulfilled. Set true \
-            to this value to suggest a hot trade.",
+            provided all other requirements for hot trading are fulfilled. Set this \
+            value to true to suggest a hot trade.",
     )
     market: str = Field(..., description="Mandatory. The market you want to trade. e.g. BTC/USDT")
     data_source: str = Field(

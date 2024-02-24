@@ -25,7 +25,7 @@ from setuptools import find_packages, setup
 setup(
     name='fa-signal-provider',
     packages=find_packages(include=['fasignalprovider',
-                                    'fasignalprovider.fund'
+                                    'fasignalprovider.com'
                                     ], exclude=['tests*']),
     # packages=['fasignalprovider'],
     # package_dir={'fasignalprovider':'src'}
