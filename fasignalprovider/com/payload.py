@@ -9,73 +9,87 @@ T = TypeVar("T")
 
 class Payload(BaseModel):
     timestamp: str = Field(default_factory=lambda: datetime.utcnow().isoformat())
-    
+
     def serialize(self) -> Dict[str, Any]:
         # Since this is the top-level class, we'll manually construct the dictionary
         # Pydantic's `dict()` method can be used here to convert model to dict
         return self.model_dump()
 
+
 class Event(Payload):
     event_type: str
+    detail: Optional[str] = None
     code: Optional[Code]
 
     def serialize(self) -> Dict[str, Any]:
         data = super().serialize()
-        data.update({
-            "event_type": self.event_type,
-            "code": self.code.value if self.code else None,
-        })
+        data.update(
+            {
+                "event_type": self.event_type,
+                "detail": self.detail,
+                "code": self.code.value if self.code else None,
+            }
+        )
         return data
+
 
 ### TECHNICAL EVENTS FROM HERE DOWNWARDS ###
 class ErrorEvent(Event):
-    """An error Event is thrown in case of technical event. e.g.
-    FastAPI Middleware fails, wrong headers, false authentication,
+    """An error Event is sent in case of any technical events. e.g.
+    webservice middleware fails, wrong headers, false authentication,
     etc."""
-
     event_type: str = "ErrorEvent"
-    detail: Optional[str] = None
 
 
 ### BUSINESS EVENTS FROM HERE DOWNWARDS ###
+
 class SignalReceived(Event):
+    """This is when a trading signal was received without errors."""
     internal_signal_id: str
     event_type: str = "SignalReceived"
 
 
 class SignalRejected(Event):
+    """This is when a trading signal was deliberately rejected after the qualification process has been completed."""
     submitted_signal_id: str
     reason: str
     event_type: str = "SignalRejected"
 
 
 class SignalQualified(Event):
+    """This event appears if a trading signals has successfully qualified."""
     signal_id: str
     time_of_qualification: datetime
     event_type: str = "SignalQualified"
 
-
 class TradeCreated(Event):
+    """This event appears if a trade base on a signal was started. With us a trade consists of at least one buy and one sell signal (or TP/SL)."""
     trade_id: str
-    details: dict  # You can replace 'dict' with a more specific model if you have one
     event_type: str = "TradeCreated"
+
+class TradeCanceled(Event):
+    trade_id: str
+    reason: str
+    event_type: str = "TradeCanceled"
+
+class TradeFinished(Event):
+    trade_id: str
+    event_type: str = "TradeFinished"
 
 
 class OrderCreated(Event):
     order_id: str
-    order_details: dict  # Replace 'dict' with a specific model as needed
     event_type: str = "OrderCreated"
 
 
 class OrderFilled(Event):
     order_id: str
-    fill_details: dict  # Replace 'dict' with a specific model as needed
     event_type: str = "OrderFilled"
 
 
 class OrderCanceled(Event):
     order_id: str
-    cancellation_reason: Optional[str] = None
+    reason: Optional[str] = None
     event_type: str = "OrderCanceled"
 
 

@@ -2,6 +2,13 @@ from enum import Enum
 
 class Code(Enum):
 
+    def __init__(self, code, message):
+        self.code = code
+        self.message = message
+
+    def __str__(self):
+        return f"{self.code} {self.message}"
+
     # 2xx Success
     OK = (200, "OK: The request has succeeded.")
     CREATED = (201, "Created: The request has been fulfilled and resulted in a new resource being created.")
@@ -57,9 +64,4 @@ class Code(Enum):
     NOT_EXTENDED = (510, "Not Extended: Further extensions to the request are required for the server to fulfill it.")
     NETWORK_AUTHENTICATION_REQUIRED = (511, "Network Authentication Required: The client needs to authenticate to gain network access.")
 
-    def __init__(self, code, message):
-        self.code = code
-        self.message = message
-
-    def __str__(self):
-        return f"{self.code} {self.message}"
+    
