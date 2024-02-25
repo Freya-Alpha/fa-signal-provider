@@ -1,5 +1,6 @@
 pydantic
 pydantic[email]
+# TEST LIBRARIES
 wheel
 setuptools
 twine

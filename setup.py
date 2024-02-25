@@ -24,9 +24,11 @@ from setuptools import find_packages, setup
 
 setup(
     name='fa-signal-provider',
-    packages=find_packages(include=['fasignalprovider',
-                                    'fasignalprovider.com'
-                                    ], exclude=['tests*']),
+    # packages=find_packages(include=['fasignalprovider',
+    #                                 'fasignalprovider.com'
+    #                                 ], exclude=['tests*']),
+    packages=find_packages(exclude=['tests*']),
+    include_package_data=True # finds all modules within recursive folders with a __init__.py file.
     # packages=['fasignalprovider'],
     # package_dir={'fasignalprovider':'src'}
     #packages=find_packages(),
