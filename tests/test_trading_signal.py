@@ -2,6 +2,7 @@ from pydantic import ValidationError
 import pytest
 from datetime import datetime
 from fasignalprovider.direction import Direction
+from fasignalprovider.order_type import OrderType
 from fasignalprovider.side import Side
 from fasignalprovider.trading_signal import TradingSignal
 
@@ -17,6 +18,7 @@ def test_valid_trading_signal():
         data_source="Chainlink",
         direction=Direction.LONG,
         side=Side.BUY,
+        order_type=OrderType.LIMIT_ORDER,
         price=10000.0,
         tp=10500.0,
         sl=9500.0,
