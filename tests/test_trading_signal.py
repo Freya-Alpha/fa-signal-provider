@@ -23,7 +23,27 @@ def test_valid_trading_signal():
         tp=10500.0,
         sl=9500.0,
         position_size_in_percentage=100,
-        date_of_creation=datetime.now(),
+        date_of_creation=datetime.utcnow().isoformat() + "Z"
+    )
+    assert signal is not None
+
+
+def test_valid_trading_signal_without_date():
+    # Test with valid data but no date_of_creation
+    signal = TradingSignal(
+        provider_id="provider123",
+        strategy_id="strategy456",
+        provider_trade_id="trade789",
+        provider_signal_id="signal_id",
+        market="BTC/USDT",
+        data_source="Chainlink",
+        direction=Direction.LONG,
+        side=Side.BUY,
+        order_type=OrderType.LIMIT_ORDER,
+        price=10000.0,
+        tp=10500.0,
+        sl=9500.0,
+        position_size_in_percentage=100
     )
     assert signal is not None
 
@@ -86,7 +106,7 @@ def test_invalid_trading_signal(
             tp=tp,
             sl=sl,
             position_size_in_percentage=position_size_in_percentage,
-            date_of_creation=datetime.now(),
+            date_of_creation=datetime.utcnow().isoformat() + "Z"
         )
 
 @pytest.mark.parametrize("price", [1, -100])
@@ -104,7 +124,7 @@ def test_negative_price(price):
             tp=10500.0,
             sl=9500.0,
             position_size_in_percentage=100,
-            date_of_creation=datetime.now(),
+            date_of_creation=datetime.utcnow().isoformat() + "Z"
         )
 
 @pytest.mark.parametrize(
@@ -133,7 +153,7 @@ def test_negative_on_non_negative_numbers_only(field, value):
         "tp": 10500.0,
         "sl": 9500.0,
         "position_size_in_percentage": 100,
-        "date_of_creation": datetime.now(),
+        "date_of_creation": datetime.utcnow().isoformat() + "Z",
         "provider_signal_id": "signal123",  # Assuming this is a required field
     }
 

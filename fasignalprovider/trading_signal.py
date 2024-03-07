@@ -65,20 +65,29 @@ class TradingSignal(BaseModel):
     side: Side = Field(
         ..., description="Mandatory. Simply BUY (open trade) or SELL (close trade)."
     )
-    order_type: OrderType = Field(default=OrderType.LIMIT_ORDER, description="Mandatory. Default is Limit Order. Please be careful with Markets Orders as slipage could be high.")
+    order_type: OrderType = Field(
+        default=OrderType.LIMIT_ORDER,
+        description="Mandatory. Default is Limit Order. Please be careful with Markets Orders as slipage could be high.",
+    )
     price: float = Field(
         ...,
         description="Mandatory. The price to buy or sell. Used for the limit-order. If market-order is set, this price is a reference price only to avoid average slipage greater than 10%.",
     )
-    tp: float = Field(..., description="Mandatory. Take-profit in an absolute price. In case of a sell signal (limit order) the TP must equal the price.")
-    sl: float = Field(..., description="Mandatory. Stop-loss in an absolute price. In case of a sell signal (limit order) the SL must equal the price.")
+    tp: float = Field(
+        ...,
+        description="Mandatory. Take-profit in an absolute price. In case of a sell signal (limit order) the TP must equal the price.",
+    )
+    sl: float = Field(
+        ...,
+        description="Mandatory. Stop-loss in an absolute price. In case of a sell signal (limit order) the SL must equal the price.",
+    )
     position_size_in_percentage: float = Field(
         default=100,
         description="Caution, if one chooses another value than 100, the system will create a multi-position-trade (for scaling-in and scaling-out on a trade). In addition, one has to provide a provider_trade_id in order for the system to create a multi-position-trade. Any consecutive trades (scale-in/out), need to have provide the same provider_trade_id. Percentage of the trade position this algortihm is allowed to trade. Default is 100%, which is 1 position of your fund's positions. Another number than 100, will assume this trade has multiple positions. If a signal provider has one partial position open and then closes it, it will also regard the trade as fully closed.",
     )
-    date_of_creation: datetime = Field(
-        default_factory=datetime.utcnow,
-        description="Mandatory. The UTC date/time when the signal was created in the signal provider's system.",
+    date_of_creation: str = Field(
+        default_factory=lambda: datetime.utcnow().isoformat() + 'Z',
+        description="Mandatory. The UTC date/time when the signal was created in the signal provider's system. Make sure you are using this ISO 8601 with Milliseconds and indicating Zulu/UTC. See default value."
     )
 
     @field_validator(
@@ -97,7 +106,7 @@ class TradingSignal(BaseModel):
     @field_validator("price", "tp", "sl", "position_size_in_percentage")
     def check_positive_value(cls, v):
         if v <= 0:
-            raise ValueError("This field must be positive.")
+            raise ValueError("price must a positive number.")
         return v
 
     @field_validator("is_hot_signal")
@@ -114,6 +123,12 @@ class TradingSignal(BaseModel):
 
     @field_validator("date_of_creation")
     def check_datetime(cls, v):
-        if not isinstance(v, datetime):
-            raise ValueError("date_of_creation must be a datetime object.")
+        # Attempt to parse the string into a datetime object
+        # You must decide on the datetime format you expect. Here's an example using ISO format: "YYYY-MM-DDTHH:MM:SS"
+        try:
+            datetime.strptime(v, '%Y-%m-%dT%H:%M:%S.%fZ')
+        except ValueError:
+            # If parsing fails, raise a ValueError indicating the issue
+            raise ValueError(f"date_of_creation must be a valid datetime string in ISO format (YYYY-MM-DDTHH:MM:SS), got {v}")
+        # If parsing succeeds, return the original string
         return v

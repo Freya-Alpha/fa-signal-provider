@@ -1,13 +1,16 @@
+from abc import ABC
+from enum import Enum
 from pydantic import BaseModel, Field
 from datetime import datetime, timezone
 from typing import Any, Dict, TypeVar, Optional
 from fasignalprovider.code import Code
+from fasignalprovider.trading_signal import TradingSignal
 
 T = TypeVar("T")
 
 
 class Payload(BaseModel):
-    timestamp: str = Field(default_factory=lambda: datetime.utcnow().isoformat())
+    event_timestamp: str = Field(default_factory=lambda: datetime.utcnow().isoformat() + 'Z')
 
     def serialize(self) -> Dict[str, Any]:
         # Since this is the top-level class, we'll manually construct the dictionary
@@ -64,37 +67,81 @@ class ErrorEvent(Event):
 
 
 ### BUSINESS EVENTS FROM HERE DOWNWARDS ###
-class SignalDataInvalidated(Event):
+
+
+######## TRADING SIGNAL EVENTS ########
+class TradingSignalDataInvalidated(Event):
     """This event occures when input data is syntactically invalid to represent a Trading Signal."""
     signal_data: str
     """Whatever data this is."""
-    event_type: str = "signal_data_invalidated"
+    event_type: str = "trading_signal_data_invalidated"
+    reason_for_invalidation: str
 
 
-class SignalIncoming(Event):
+class TradingSignalIncoming(Event):
     """This event occures when a trading signal contains syntactically valid Trading Signal data, but has not yet been completely syntactically verified and stored."""
     signal_data: Dict
-    event_type: str = "signal_incoming"
+    event_type: str = "trading_signal_incoming"    
 
 
-class SignalReceived(Event):
-    """This is when a trading signal was received without errors."""
+class TradingSignalEvent(Event, ABC):
+    """ABSTRACT - This is the base of all signal events."""        
+    trading_signal: TradingSignal
+
+
+class TradingSignalReceived(TradingSignalEvent):
+    """This is when a trading signal was received without errors."""    
     internal_signal_id: str
-    event_type: str = "signal_received"
+    event_type: str = "trading_signal_received"
+    date_of_reception: str = Field(default_factory=lambda: datetime.utcnow().isoformat() + 'Z')
 
 
-class SignalRejected(Event):
+class ReasonForRejection(str, Enum):
+    NOT_AUTHENTICATED = "not_authenticated"
+    SCAM = "scam"
+    DOS_ATTACK = (
+        "dos_attack"  # any flood attack: slowloris, ping-of-death, query attack, etc.
+    )
+    BANNED_SUPPLIER = "banned_supplier"
+    BANNED_STRATEGY = "banned_strategy"
+    BANNED_IP = "banned_ip"
+    MARKET_NOT_ALLOWED = "market_not_allowed"
+    INVALID_DATA = "invalid_data"
+    INVALID_PRICE = "invalid_price"
+    INCLOMPLETE = "incomplete"  # any kind of missing data
+
+class TradingSignalRejected(TradingSignalReceived):
     """This is when a trading signal was deliberately rejected after the qualification process has been completed. It is semantically rejected."""
-    submitted_signal_id: str
-    reason: str
+    provider_signal_id: str
+    reasons_for_rejection: set[ReasonForRejection]
     event_type: str = "signal_rejected"
+    date_of_rejection: str = Field(default_factory=lambda: datetime.utcnow().isoformat() + 'Z')
+    
+    @classmethod
+    def from_raw_signal(
+        cls,
+        raw_signal: TradingSignalReceived,
+        reasons_for_rejection: ReasonForRejection,
+    ):
+        # Ensure the reason for rejection is provided
+        rejected_signal = cls(
+            **raw_signal.model_dump(), 
+            reasons_for_rejection=reasons_for_rejection
+        )
+        return rejected_signal
 
 
-class SignalQualified(Event):
-    """This event appears if a trading signal has successfully qualified. It is semantically correct."""
-    signal_id: str
-    time_of_qualification: datetime = Field(default_factory=lambda: datetime.utcnow())
-    event_type: str = "signal_qualified"
+class ReasonForCold(str, Enum):
+    PROVIDER_NOT_ELIGABLE_FOR_HOT_SIGNAL = "provider_not_eligable_for_hot_signal"
+    STRATEGY_NOT_QUALIFIED = "strategy_not_qualified" # But is allowed to send cold signals instead.
+    DISQUALIFIED_STRATEGY = "disqualified_strategy"  # This strategy used to be qualified. Stil allowed to send cold to redeem status.
+    SYSTEM_IS_COLD = "system_is_cold"  # The system is cold.
+    SIGNAL_MARKED_COLD = "signal_marked_cold"  # The signal was marked cold by the provider
+
+class TradingSignalQualified(TradingSignalReceived, ABC):
+    """ABSTRACT - This event appears if a trading signal has successfully qualified. It is semantically correct."""
+    event_type: str = "trading_signal_qualified"
+    date_of_qualification: str = Field(default_factory=lambda: datetime.utcnow().isoformat() + 'Z')
 
     def __init__(self, **data):
         if "time_of_qualification" in data:
@@ -105,6 +152,17 @@ class SignalQualified(Event):
         super().__init__(**data)
 
 
+class TradingSignalQualifiedHot(TradingSignalQualified):
+    event_type: str = "trading_signal_qualified_hot"
+
+
+class TradingSignalQualifiedCold(TradingSignalQualified):
+    event_type: str = "trading_signal_qualified_cold"
+    reasons_for_cold: set[ReasonForCold]
+
+
+######## TRADE EVENTS ########
+
 class TradeCreated(Event):
     """This event appears if a trade base on a signal was started. With us a trade consists of at least one buy and one sell signal (or TP/SL)."""
 
@@ -114,6 +172,7 @@ class TradeCreated(Event):
 
 class TradeCanceled(Event):
     """This event occures if a Trade has been canceled. Either with no fill or partial fill."""
+
     trade_id: str
     reason: str
     event_type: str = "trade_canceled"
