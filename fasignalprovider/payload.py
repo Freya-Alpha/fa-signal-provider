@@ -2,7 +2,7 @@ from abc import ABC
 from enum import Enum
 from pydantic import BaseModel, Field
 from datetime import datetime, timezone
-from typing import Any, Dict, TypeVar, Optional
+from typing import Any, ClassVar, Dict, TypeVar, Optional
 from fasignalprovider.code import Code
 from fasignalprovider.trading_signal import TradingSignal
 
@@ -19,7 +19,7 @@ class Payload(BaseModel):
 
 
 class Event(Payload):
-    event_type: str
+    event_type: ClassVar[str]
     detail: Optional[str] = None
     code: Optional[Code]
     data: Optional[Dict[str, Any]] = None  # with type hints
@@ -63,7 +63,7 @@ class ErrorEvent(Event):
     webservice middleware fails, wrong headers, false authentication,
     etc."""
 
-    event_type: str = "error_event"
+    event_type: ClassVar[str] = "error_event"
 
 
 ### BUSINESS EVENTS FROM HERE DOWNWARDS ###
@@ -74,14 +74,14 @@ class TradingSignalDataInvalidated(Event):
     """This event occures when input data is syntactically invalid to represent a Trading Signal."""
     signal_data: str
     """Whatever data this is."""
-    event_type: str = "trading_signal_data_invalidated"
+    event_type: ClassVar[str] = "trading_signal_data_invalidated"
     reason_for_invalidation: str
 
 
 class TradingSignalIncoming(Event):
     """This event occures when a trading signal contains syntactically valid Trading Signal data, but has not yet been completely syntactically verified and stored."""
     signal_data: Dict
-    event_type: str = "trading_signal_incoming"    
+    event_type: ClassVar[str] = "trading_signal_incoming"    
 
 
 class TradingSignalEvent(Event, ABC):
@@ -92,7 +92,7 @@ class TradingSignalEvent(Event, ABC):
 class TradingSignalReceived(TradingSignalEvent):
     """This is when a trading signal was received without errors."""    
     internal_signal_id: str
-    event_type: str = "trading_signal_received"
+    event_type: ClassVar[str] = "trading_signal_received"
     date_of_reception: str = Field(default_factory=lambda: datetime.utcnow().isoformat() + 'Z')
 
 
@@ -114,7 +114,7 @@ class TradingSignalRejected(TradingSignalReceived):
     """This is when a trading signal was deliberately rejected after the qualification process has been completed. It is semantically rejected."""
     provider_signal_id: str
     reasons_for_rejection: set[ReasonForRejection]
-    event_type: str = "signal_rejected"
+    event_type: ClassVar[str] = "signal_rejected"
     date_of_rejection: str = Field(default_factory=lambda: datetime.utcnow().isoformat() + 'Z')
     
     @classmethod
@@ -140,7 +140,7 @@ class ReasonForCold(str, Enum):
 
 class TradingSignalQualified(TradingSignalReceived, ABC):
     """ABSTRACT - This event appears if a trading signal has successfully qualified. It is semantically correct."""
-    event_type: str = "trading_signal_qualified"
+    event_type: ClassVar[str] = "trading_signal_qualified"
     date_of_qualification: str = Field(default_factory=lambda: datetime.utcnow().isoformat() + 'Z')
 
     def __init__(self, **data):
@@ -153,11 +153,11 @@ class TradingSignalQualified(TradingSignalReceived, ABC):
 
 
 class TradingSignalQualifiedHot(TradingSignalQualified):
-    event_type: str = "trading_signal_qualified_hot"
+    event_type: ClassVar[str] = "trading_signal_qualified_hot"
 
 
 class TradingSignalQualifiedCold(TradingSignalQualified):
-    event_type: str = "trading_signal_qualified_cold"
+    event_type: ClassVar[str] = "trading_signal_qualified_cold"
     reasons_for_cold: set[ReasonForCold]
 
 
@@ -167,7 +167,7 @@ class TradeCreated(Event):
     """This event appears if a trade base on a signal was started. With us a trade consists of at least one buy and one sell signal (or TP/SL)."""
 
     trade_id: str
-    event_type: str = "trade_created"
+    event_type: ClassVar[str] = "trade_created"
 
 
 class TradeCanceled(Event):
@@ -175,31 +175,31 @@ class TradeCanceled(Event):
 
     trade_id: str
     reason: str
-    event_type: str = "trade_canceled"
+    event_type: ClassVar[str] = "trade_canceled"
 
 
 class TradeFinished(Event):
     trade_id: str
-    event_type: str = "trade_finished"
+    event_type: ClassVar[str] = "trade_finished"
 
 
 class OrderCreated(Event):
     order_id: str
-    event_type: str = "order_created"
+    event_type: ClassVar[str] = "order_created"
 
 
 class OrderFilled(Event):
     order_id: str
-    event_type: str = "order_filled"
+    event_type: ClassVar[str] = "order_filled"
 
 
 class OrderCanceled(Event):
     order_id: str
     reason: Optional[str] = None
-    event_type: str = "order_canceled"
+    event_type: ClassVar[str] = "order_canceled"
 
 
 class ProfitTaken(Event):
     trade_id: str
     profit_amount: float
-    event_type: str = "profit_taken"
+    event_type: ClassVar[str] = "profit_taken"
