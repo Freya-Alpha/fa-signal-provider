@@ -8,17 +8,8 @@ from fasignalprovider.trading_signal import TradingSignal
 
 T = TypeVar("T")
 
-
-class Payload(BaseModel):
+class Event(BaseModel):
     event_timestamp: str = Field(default_factory=lambda: datetime.utcnow().isoformat() + 'Z')
-
-    def serialize(self) -> Dict[str, Any]:
-        # Since this is the top-level class, we'll manually construct the dictionary
-        # Pydantic's `dict()` method can be used here to convert model to dict
-        return self.model_dump()
-
-
-class Event(Payload):
     event_type: ClassVar[str]
     detail: Optional[str] = None
     code: Optional[Code]
