@@ -86,8 +86,7 @@ class TradingSignal(BaseModel):
         description="Caution, if one chooses another value than 100, the system will create a multi-position-trade (for scaling-in and scaling-out on a trade). In addition, one has to provide a provider_trade_id in order for the system to create a multi-position-trade. Any consecutive trades (scale-in/out), need to have provide the same provider_trade_id. Percentage of the trade position this algortihm is allowed to trade. Default is 100%, which is 1 position of your fund's positions. Another number than 100, will assume this trade has multiple positions. If a signal provider has one partial position open and then closes it, it will also regard the trade as fully closed.",
     )
     date_of_creation: str = Field(
-        default_factory=lambda: datetime.utcnow().isoformat() + 'Z',
-        description="Mandatory. The UTC date/time when the signal was created in the signal provider's system. Make sure you are using this ISO 8601 with Milliseconds and indicating Zulu/UTC. See default value."
+        description="Mandatory. The UTC date/time when the signal was created in the signal provider's system. Make sure you are using this ISO 8601 with Milliseconds and indicating Zulu/UTC. e.g. 2024-01-10 20:49:05.123456+00:00"
     )
 
     @field_validator(
@@ -126,7 +125,11 @@ class TradingSignal(BaseModel):
         # Attempt to parse the string into a datetime object
         # You must decide on the datetime format you expect. Here's an example using ISO format: "YYYY-MM-DDTHH:MM:SS"
         try:
-            datetime.strptime(v, '%Y-%m-%dT%H:%M:%S.%fZ')
+            # Accepts Z-versioned ISO date and a '+00:00'-ISO date
+            if 'Z' in v:
+                datetime.strptime(v, '%Y-%m-%dT%H:%M:%S.%fZ')
+            else:
+                datetime.strptime(v, '%Y-%m-%dT%H:%M:%S.%f%z')
         except ValueError:
             # If parsing fails, raise a ValueError indicating the issue
             raise ValueError(f"date_of_creation must be a valid datetime string in ISO format (YYYY-MM-DDTHH:MM:SS), got {v}")

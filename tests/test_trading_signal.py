@@ -1,6 +1,6 @@
 from pydantic import ValidationError
 import pytest
-from datetime import datetime
+from datetime import datetime, timezone
 from fasignalprovider.direction import Direction
 from fasignalprovider.order_type import OrderType
 from fasignalprovider.side import Side
@@ -23,7 +23,7 @@ def test_valid_trading_signal():
         tp=10500.0,
         sl=9500.0,
         position_size_in_percentage=100,
-        date_of_creation=datetime.utcnow().isoformat() + "Z"
+        date_of_creation=datetime.now(timezone.utc).isoformat()
     )
     assert signal is not None
 
@@ -43,7 +43,8 @@ def test_valid_trading_signal_without_date():
         price=10000.0,
         tp=10500.0,
         sl=9500.0,
-        position_size_in_percentage=100
+        position_size_in_percentage=100,
+        date_of_creation=datetime.now(timezone.utc).isoformat()
     )
     assert signal is not None
 
