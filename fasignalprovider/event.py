@@ -2,6 +2,7 @@ from abc import ABC
 from enum import Enum
 from pydantic import BaseModel, Field
 from datetime import datetime, timezone
+import time
 from typing import Any, ClassVar, Dict, TypeVar, Optional
 from fasignalprovider.code import Code
 from fasignalprovider.trading_signal import TradingSignal
@@ -10,8 +11,8 @@ T = TypeVar("T")
 
 
 class Event(BaseModel):
-    event_timestamp: str = Field(
-        default_factory=lambda: datetime.now(timezone.utc).isoformat()
+    event_timestamp: int = Field(
+        default_factory=lambda: int(time.time() * 1000)
     )
     event_type: ClassVar[str]
     detail: Optional[str] = None
@@ -77,30 +78,30 @@ class TradingSignalDataInvalidated(Event):
 
     signal_data: str
     """Whatever data this is."""
+    ip: str
     event_type: ClassVar[str] = "trading_signal_data_invalidated"
     reason_for_invalidation: str
 
 
 class TradingSignalIncoming(Event):
     """This event occures when a trading signal contains syntactically valid Trading Signal data, but has not yet been completely syntactically verified and stored."""
-
     signal_data: Dict
+    ip: str
     event_type: ClassVar[str] = "trading_signal_incoming"
 
 
 class TradingSignalEvent(Event, ABC):
     """ABSTRACT - This is the base of all signal events."""
-
     trading_signal: TradingSignal
 
 
 class TradingSignalReceived(TradingSignalEvent):
     """This is when a trading signal was received without errors."""
-
     internal_signal_id: str
     event_type: ClassVar[str] = "trading_signal_received"
+    ip: str
     date_of_reception: str = Field(
-        default_factory=lambda: datetime.now(timezone.utc).isoformat()
+        default_factory=lambda: int(time.time() * 1000)
     )
 
 
@@ -126,7 +127,7 @@ class TradingSignalRejected(TradingSignalReceived):
     reasons_for_rejection: set[ReasonForRejection]
     event_type: ClassVar[str] = "signal_rejected"
     date_of_rejection: str = Field(
-        default_factory=lambda: datetime.now(timezone.utc).isoformat()
+        default_factory=lambda: int(time.time() * 1000)
     )
 
     @classmethod
@@ -159,7 +160,7 @@ class TradingSignalQualified(TradingSignalReceived, ABC):
 
     event_type: ClassVar[str] = "trading_signal_qualified"
     date_of_qualification: str = Field(
-        default_factory=lambda: datetime.now(timezone.utc).isoformat()
+        default_factory=lambda: int(time.time() * 1000)
     )
 
     def __init__(self, **data):

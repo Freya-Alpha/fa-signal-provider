@@ -1,3 +1,4 @@
+import time
 from pydantic import ValidationError
 import pytest
 from datetime import datetime, timezone
@@ -23,7 +24,7 @@ def test_valid_trading_signal():
         tp=10500.0,
         sl=9500.0,
         position_size_in_percentage=100,
-        date_of_creation=datetime.now(timezone.utc).isoformat()
+        date_of_creation=int(time.time() * 1000)
     )
     assert signal is not None
 
@@ -44,7 +45,7 @@ def test_valid_trading_signal_without_date():
         tp=10500.0,
         sl=9500.0,
         position_size_in_percentage=100,
-        date_of_creation=datetime.now(timezone.utc).isoformat()
+        date_of_creation=int(time.time() * 1000)
     )
     assert signal is not None
 

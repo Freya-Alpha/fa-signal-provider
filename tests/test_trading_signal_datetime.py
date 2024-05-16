@@ -1,4 +1,5 @@
 from datetime import datetime, timezone
+import time
 import pytest
 from fasignalprovider.direction import Direction
 from fasignalprovider.side import Side
@@ -21,10 +22,10 @@ valid_data = {
     # "date_of_creation": This will be set in the tests
 }
 
-def test_trading_signal_with_z_version():
-    # Test with 'Z' version of datetime
-    data_with_z = valid_data.copy()
-    data_with_z["date_of_creation"] = datetime.now(timezone.utc).isoformat(timespec='milliseconds').replace('+00:00', 'Z')
-    trading_signal = TradingSignal(**data_with_z)
-    assert trading_signal.date_of_creation == data_with_z["date_of_creation"], "TradingSignal should accept datetime strings with 'Z'"
+def test_trading_signal_accepts_posix_timestamp():
+    # Test with integer POSIX timestamp, assuming milliseconds
+    data_with_int = valid_data.copy()
+    data_with_int["date_of_creation"] = int(time.time() * 1000)
+    trading_signal = TradingSignal(**data_with_int)
+    assert trading_signal.date_of_creation == data_with_int["date_of_creation"], "TradingSignal should accept integer POSIX timestamps including milliseconds"
 
