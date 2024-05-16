@@ -1,6 +1,4 @@
-from datetime import datetime, timezone
 import time
-import pytest
 from fasignalprovider.direction import Direction
 from fasignalprovider.side import Side
 from fasignalprovider.trading_signal import TradingSignal  # Ensure to replace `your_module` with the actual name of your module

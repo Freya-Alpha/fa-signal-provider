@@ -1,7 +1,7 @@
 import time
 from pydantic import ValidationError
 import pytest
-from datetime import datetime, timezone
+from datetime import datetime
 from fasignalprovider.direction import Direction
 from fasignalprovider.order_type import OrderType
 from fasignalprovider.side import Side
