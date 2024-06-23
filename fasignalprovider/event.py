@@ -16,8 +16,7 @@ class Event(BaseModel):
     )
     event_type: ClassVar[str]
     detail: Optional[str] = None
-    data: Optional[Dict[str, Any]] = None  # with type hints
-    """Data is used to store the object value. e.g. a signal, a trade, a profit, etc."""
+    data: Optional[Dict[str, Any]] = None
 
     def serialize(self) -> Dict[str, Any]:
         data = {
@@ -25,8 +24,6 @@ class Event(BaseModel):
             "detail": self.detail,
             "data": self._serialize_data(self.data),
         }
-        # Optionally, you can remove keys with None values if you don't want them in the serialized output
-        # return {k: v for k, v in data.items() if v is not None}
         return data
 
     def _serialize_data(
@@ -34,18 +31,14 @@ class Event(BaseModel):
     ) -> Optional[Dict[str, Any]]:
         if data is None:
             return None
-        # Serialize each value in the dictionary, converting datetime to ISO format if necessary
         return {key: self._serialize_value(value) for key, value in data.items()}
 
     def _serialize_value(self, value: Any) -> Any:
         if isinstance(value, datetime):
-            # Convert datetime to ISO format string
             return value.astimezone().isoformat()
         elif isinstance(value, dict):
-            # Recursively serialize dictionary values
             return self._serialize_data(value)
         return value
-
 
 ### TECHNICAL EVENTS FROM HERE DOWNWARDS ###
 class ErrorEvent(Event):
