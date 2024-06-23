@@ -101,7 +101,7 @@ class TradingSignalReceived(TradingSignalEvent):
     event_type: ClassVar[str] = "trading_signal_received"
     ip: str
     date_of_reception: int = Field(
-        default_factory=lambda: time.time_ns()
+        default_factory=lambda: int(time.time() * 1000)
     )
 
 
@@ -127,7 +127,7 @@ class TradingSignalRejected(TradingSignalReceived):
     reasons_for_rejection: set[ReasonForRejection]
     event_type: ClassVar[str] = "signal_rejected"
     date_of_rejection: int = Field(
-        default_factory=lambda: time.time_ns()
+        default_factory=lambda: int(time.time() * 1000)
     )
 
     @classmethod
@@ -160,7 +160,7 @@ class TradingSignalQualified(TradingSignalReceived, ABC):
 
     event_type: ClassVar[str] = "trading_signal_qualified"
     date_of_qualification: int = Field(
-        default_factory=lambda: time.time_ns()
+        default_factory=lambda: int(time.time() * 1000)
     )
 
     def __init__(self, **data):
