@@ -100,8 +100,8 @@ class TradingSignalReceived(TradingSignalEvent):
     internal_signal_id: str
     event_type: ClassVar[str] = "trading_signal_received"
     ip: str
-    date_of_reception: str = Field(
-        default_factory=lambda: int(time.time() * 1000)
+    date_of_reception: int = Field(
+        default_factory=lambda: time.time_ns()
     )
 
 
@@ -126,8 +126,8 @@ class TradingSignalRejected(TradingSignalReceived):
     provider_signal_id: str
     reasons_for_rejection: set[ReasonForRejection]
     event_type: ClassVar[str] = "signal_rejected"
-    date_of_rejection: str = Field(
-        default_factory=lambda: int(time.time() * 1000)
+    date_of_rejection: int = Field(
+        default_factory=lambda: time.time_ns()
     )
 
     @classmethod
@@ -159,8 +159,8 @@ class TradingSignalQualified(TradingSignalReceived, ABC):
     """ABSTRACT - This event appears if a trading signal has successfully qualified. It is semantically correct."""
 
     event_type: ClassVar[str] = "trading_signal_qualified"
-    date_of_qualification: str = Field(
-        default_factory=lambda: int(time.time() * 1000)
+    date_of_qualification: int = Field(
+        default_factory=lambda: time.time_ns()
     )
 
     def __init__(self, **data):
