@@ -116,10 +116,8 @@ class ReasonForRejection(str, Enum):
 
 class TradingSignalRejected(TradingSignalReceived):
     """This is when a trading signal was deliberately rejected after the qualification process has been completed. It is semantically rejected."""
-
-    provider_signal_id: str
     reasons_for_rejection: set[ReasonForRejection]
-    event_type: ClassVar[str] = "signal_rejected"
+    event_type: ClassVar[str] = "trading_signal_rejected"
     date_of_rejection: int = Field(
         default_factory=lambda: int(time.time() * 1000)
     )
