@@ -106,6 +106,7 @@ class ReasonForRejection(str, Enum):
     )
     BANNED_SUPPLIER = "banned_supplier"
     BANNED_STRATEGY = "banned_strategy"
+    DISQUALIFIED_STRATEGY = "disqualified strategy"
     BANNED_IP = "banned_ip"
     MARKET_NOT_ALLOWED = "market_not_allowed"
     INVALID_DATA = "invalid_data"
