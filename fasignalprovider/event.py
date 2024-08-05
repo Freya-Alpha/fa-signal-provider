@@ -104,8 +104,10 @@ class ReasonForRejection(str, Enum):
     DOS_ATTACK = (
         "dos_attack"  # any flood attack: slowloris, ping-of-death, query attack, etc.
     )
-    BANNED_SUPPLIER = "banned_supplier"
+    BANNED_PROVIDER = "banned_provider"
+    UKNOWN_PROVIDER = "unknown_provider"
     BANNED_STRATEGY = "banned_strategy"
+    UNKNOWN_STRATEGY = "unknown_strategy"
     DISQUALIFIED_STRATEGY = "disqualified strategy"
     BANNED_IP = "banned_ip"
     MARKET_NOT_ALLOWED = "market_not_allowed"
